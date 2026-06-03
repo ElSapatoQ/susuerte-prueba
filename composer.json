@@ -1,0 +1,11 @@
+{
+  "name": "santiago/susuerte-prueba",
+  "description": "Prueba tecnica Susuerte - sistema simplificado de tiquetes",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Susuerte\\": "src/"
+    }
+  },
+  "require": {}
+}
