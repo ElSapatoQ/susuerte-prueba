@@ -911,4 +911,230 @@ Sirve para validar rápidamente la lógica interna de creación del tiquete, des
 * Movería la configuración de base de datos a variables de entorno.
 * Estandarizaría mejor el formato de errores JSON.
 
+---
+
+# Parte 4: Interfaz web para crear tiquetes
+
+## Objetivo
+
+En esta parte se creó una página `index.html` para consumir la API desarrollada en la Parte 3.
+
+El objetivo fue cubrir los siguientes puntos del enunciado:
+
+* Crear un formulario para enviar un tiquete con `usuario_id` y `monto`.
+* Usar `fetch` para enviar los datos al endpoint de creación de tiquetes.
+* Mostrar mensajes diferentes según el código HTTP recibido.
+* Agregar el tiquete creado a una lista visible en el DOM sin recargar la página.
+
+## Archivo relacionado
+
+La interfaz se encuentra en:
+
+```text
+public/index.html
+```
+
+## Funcionamiento general
+
+La página contiene un formulario con dos campos:
+
+```text
+usuario_id
+monto
+```
+
+Cuando el usuario envía el formulario, JavaScript evita que la página se recargue usando:
+
+```javascript
+event.preventDefault()
+```
+
+Luego se toman los valores ingresados y se envían al endpoint de la Parte 3 usando `fetch`.
+
+Fragmento representativo:
+
+```javascript
+fetch('/api/tiquetes.php', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        usuario_id: Number(usuarioId),
+        monto: Number(monto)
+    })
+})
+```
+
+Este `fetch` envía una petición `POST` al endpoint encargado de crear tiquetes.
+
+## Mensajes según código HTTP
+
+La página interpreta el código HTTP recibido y muestra un mensaje diferente al usuario.
+
+Los casos manejados son:
+
+```text
+201 = tiquete creado correctamente
+400 = datos inválidos
+404 = usuario no encontrado
+422 = saldo insuficiente
+500 u otros = error inesperado
+```
+
+Por ejemplo, si el usuario no existe, el backend responde con `404` y la interfaz muestra un mensaje indicando que el usuario no fue encontrado.
+
+Si el usuario existe pero no tiene saldo suficiente, el backend responde con `422` y la interfaz muestra un mensaje de saldo insuficiente.
+
+Esto permite que el usuario reciba una respuesta clara dependiendo del resultado de la operación.
+
+## Agregar tiquete al DOM sin recargar
+
+Cuando el tiquete se crea correctamente, la página no se recarga.
+
+En lugar de eso, se llama a una función que agrega el nuevo tiquete a una lista visible en pantalla.
+
+Fragmento representativo:
+
+```javascript
+agregarTiqueteALista(data.tiquete)
+```
+
+Dentro de esa función se crea un nuevo elemento HTML con:
+
+```javascript
+document.createElement('div')
+```
+
+Luego ese elemento se agrega a la lista con:
+
+```javascript
+listaTiquetes.prepend(item)
+```
+
+Se usa `prepend` para que el tiquete más reciente aparezca de primero.
+
+Esto cumple el requisito de actualizar el DOM sin recargar la página.
+
+## Corrección realizada durante las pruebas
+
+Durante las pruebas se identificó que el backend respondía correctamente con códigos como `404`, pero el mensaje no aparecía en pantalla.
+
+El problema estaba en que el contenedor del mensaje se ocultaba al limpiar el mensaje anterior, pero no se volvía a mostrar al escribir uno nuevo.
+
+Se corrigió agregando:
+
+```javascript
+mensaje.style.display = 'block'
+```
+
+dentro de la función encargada de mostrar los mensajes.
+
+Con esto, los mensajes de éxito y error se muestran correctamente en la interfaz.
+
+## Cómo ejecutar la interfaz
+
+Desde la raíz del proyecto, iniciar el servidor local de PHP:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+Luego abrir en el navegador:
+
+```text
+http://localhost:8000
+```
+
+Es importante abrir la página desde el servidor local y no haciendo doble clic sobre el archivo `index.html`, porque el formulario usa `fetch` hacia la API.
+
+## Cómo probar la creación exitosa
+
+Con la base de datos cargada usando `schema.sql` y `seed.sql`, usar en el formulario:
+
+```text
+Usuario ID: 1
+Monto: 5000
+```
+
+Resultado esperado:
+
+```text
+Tiquete creado correctamente.
+```
+
+Además, el tiquete creado debe aparecer en la lista visible de la página sin recargar.
+
+También se puede verificar que el saldo cambió. Por ejemplo, si el usuario tenía `45000` y apostó `5000`, el saldo actual queda en `40000`.
+
+## Cómo probar usuario inexistente
+
+Usar en el formulario:
+
+```text
+Usuario ID: 999
+Monto: 5000
+```
+
+Resultado esperado:
+
+```text
+El usuario no existe.
+```
+
+En la consola del servidor puede aparecer una línea con código `404`, lo cual es correcto porque el backend está indicando que el usuario no fue encontrado.
+
+## Cómo probar saldo insuficiente
+
+Usar en el formulario:
+
+```text
+Usuario ID: 3
+Monto: 5000
+```
+
+En los datos de prueba, el usuario con ID `3` tiene saldo `0`.
+
+Resultado esperado:
+
+```text
+El usuario no tiene saldo suficiente.
+```
+
+El backend responde con código HTTP `422`, porque la solicitud está bien formada, pero no puede procesarse por una regla de negocio.
+
+## Cómo probar monto inválido
+
+Usar en el formulario:
+
+```text
+Usuario ID: 1
+Monto: 0
+```
+
+Resultado esperado:
+
+```text
+El monto debe ser mayor que cero.
+```
+
+El backend responde con código HTTP `400`, porque el monto enviado no es válido.
+
+## Decisiones tomadas
+
+* Se usó HTML, CSS y JavaScript puro para mantener la solución sencilla.
+* Se usó `fetch` para consumir el endpoint de creación de tiquetes.
+* Se evitó recargar la página usando `event.preventDefault()`.
+* Se actualizaron los tiquetes visibles creando elementos directamente en el DOM.
+* Se mostraron mensajes diferenciados según el código HTTP recibido.
+* Se mantuvo la interfaz dentro de `public/index.html`, porque es un archivo accesible desde el servidor local.
+
+## Si tuviera más tiempo...
+
+* Agregaría una carga inicial de tiquetes existentes usando el endpoint de consulta por usuario.
+* Separaría el CSS y JavaScript en archivos independientes.
+* Mejoraría la experiencia visual de la interfaz.
+* Agregaría estados de carga mientras se envía la petición.
+* Bloquearía temporalmente el botón mientras se procesa la solicitud.
+* Agregaría validaciones visuales más completas antes de enviar el formulario.
 
