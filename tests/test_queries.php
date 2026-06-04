@@ -11,10 +11,10 @@ echo "Top 3 usuarios por monto apostado en tiquetes ganadores:" . PHP_EOL;
 $sqlTopUsuarios = "
     SELECT
         u.nombre,
-        SUM(t.monto_apostado) AS total_apostado_ganador
+        SUM(t.monto) AS total_apostado_ganador
     FROM usuarios u
     INNER JOIN tiquetes t ON t.usuario_id = u.id
-    WHERE t.es_ganador = 1
+    WHERE t.estado = 'ganador'
     GROUP BY u.id, u.nombre
     ORDER BY total_apostado_ganador DESC
     LIMIT 3
