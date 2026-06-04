@@ -7,15 +7,15 @@ INSERT INTO usuarios (nombre, saldo) VALUES
 ('Laura Martinez', 30000.00),
 ('Ana Torres', 20000.00);
 
-INSERT INTO tiquetes (usuario_id, monto_apostado, estado, es_ganador) VALUES
-(1, 5000.00, 'GANADOR', 1),
-(1, 2000.00, 'PERDEDOR', 0),
-(1, 3000.00, 'GANADOR', 1),
+INSERT INTO tiquetes (usuario_id, monto, estado) VALUES
+(1, 5000.00, 'ganador'),
+(1, 2000.00, 'perdedor'),
+(1, 3000.00, 'ganador'),
 
-(2, 1000.00, 'GANADOR', 1),
-(2, 1500.00, 'PERDEDOR', 0),
+(2, 1000.00, 'ganador'),
+(2, 1500.00, 'perdedor'),
 
-(4, 7000.00, 'GANADOR', 1),
-(4, 2000.00, 'GANADOR', 1),
+(4, 7000.00, 'ganador'),
+(4, 2000.00, 'ganador'),
 
-(5, 4000.00, 'PERDEDOR', 0);
+(5, 4000.00, 'perdedor');
