@@ -1,16 +1,17 @@
 # Prueba técnica Susuerte
 
-Este proyecto corresponde a la prueba técnica para el rol de Desarrollador de Software para la página web transaccional de Susuerte.
+Proyecto desarrollado para la prueba técnica del rol de Desarrollador de Software para la página web transaccional de Susuerte.
 
-La solución se está desarrollando en PHP, usando una estructura sencilla y clara, con el objetivo de que el código no solo funcione, sino que también sea fácil de entender, explicar y sustentar.
+La solución implementa un sistema simplificado de usuarios y tiquetes de apuestas usando PHP puro, PDO y MySQL/MariaDB. El objetivo principal fue construir una solución funcional, sencilla de ejecutar y fácil de explicar.
 
 ## Tecnologías utilizadas
 
-* PHP
+* PHP 8.x
 * MySQL / MariaDB
-* PDO para la conexión con base de datos
+* PDO
 * Composer para autoload PSR-4
-* XAMPP como entorno local de desarrollo
+* HTML, CSS y JavaScript puro
+* Servidor embebido de PHP para ejecución local
 
 ## Estructura del proyecto
 
@@ -23,59 +24,106 @@ susuerte-prueba/
 │       └── usuario_tiquetes.php
 ├── src/
 │   ├── Database.php
-│   ├── TiqueteService.php
-│   └── Premio.php
+│   ├── Premio.php
+│   └── TiqueteService.php
 ├── database/
 │   ├── schema.sql
-│   └── seed.sql
-├── README.md
-├── .gitignore
+│   ├── seed.sql
+│   └── queries.sql
+├── tests/
+│   ├── test_premio.php
+│   ├── test_queries.php
+│   ├── test_database.php
+│   ├── test_usuarios.php
+│   └── test_crear_tiquete.php
 ├── composer.json
-└── vendor/
-└── tests/
+├── .gitignore
+└── README.md
 ```
 
-## Instalación inicial
+> La carpeta `vendor/` no se incluye en el repositorio porque se puede generar nuevamente con Composer.
+
+## Instalación
 
 Clonar el repositorio:
 
 ```bash
-git clone URL_DEL_REPOSITORIO
-```
-
-Entrar a la carpeta del proyecto:
-
-```bash
+git https://github.com/ElSapatoQ/susuerte-prueba.git
 cd susuerte-prueba
 ```
 
-Instalar o generar el autoload de Composer:
+Generar el autoload de Composer:
 
 ```bash
 composer dump-autoload
 ```
 
-> Nota: en este proyecto Composer se usa únicamente para manejar el autoload PSR-4. No se están usando librerías externas.
+En este proyecto Composer se usa únicamente para el autoload PSR-4. No se instalaron librerías externas.
 
-## Configuración de Composer
+## Entorno local usado
 
-El archivo `composer.json` contiene la configuración del autoload:
+Durante el desarrollo y las pruebas se usó XAMPP como entorno local.
 
-```json
-{
-  "name": "santiago/susuerte-prueba",
-  "description": "Prueba tecnica Susuerte - sistema simplificado de tiquetes",
-  "type": "project",
-  "autoload": {
-    "psr-4": {
-      "Susuerte\\": "src/"
-    }
-  },
-  "require": {}
-}
+En XAMPP se utilizaron principalmente:
+
+- MySQL / MariaDB para la base de datos.
+- phpMyAdmin para ejecutar `schema.sql`, `seed.sql` y revisar los datos.
+- Apache solo como apoyo inicial, aunque finalmente la aplicación se ejecutó con el servidor embebido de PHP para no depender de que el proyecto estuviera dentro de `htdocs`.
+
+Para probar el proyecto localmente, se debe iniciar MySQL desde el panel de XAMPP.
+
+Luego, desde phpMyAdmin, se ejecutan los scripts SQL en este orden:
+
+```text
+1. database/schema.sql
+2. database/seed.sql
 ```
 
-Esto permite cargar automáticamente las clases ubicadas dentro de la carpeta `src/` usando el namespace `Susuerte`.
+## Configuración de base de datos
+
+El proyecto usa una base de datos llamada:
+
+```text
+susuerte_prueba
+```
+
+Para crear la base de datos, tablas y datos iniciales, se puede usar phpMyAdmin desde XAMPP. Allí se ejecutan los archivos SQL en este orden:
+
+```text
+1. database/schema.sql
+2. database/seed.sql
+```
+
+Esto puede hacerse desde phpMyAdmin o desde terminal si MySQL está disponible en el PATH.
+
+El archivo `schema.sql` crea las tablas `usuarios` y `tiquetes`.
+El archivo `seed.sql` carga usuarios y tiquetes de prueba.
+
+Datos principales de prueba:
+
+```text
+ID 1 - Juan Perez       - saldo 50000
+ID 2 - Maria Gomez      - saldo 10000
+ID 3 - Carlos Ruiz      - saldo 0
+ID 4 - Laura Martinez   - saldo 30000
+ID 5 - Ana Torres       - saldo 20000
+```
+
+## Ejecutar el proyecto
+
+Desde la raíz del proyecto:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+Luego abrir en el navegador:
+
+```text
+http://localhost:8000
+```
+
+La opción `-t public` indica que la carpeta pública del proyecto es `public`.
 
 ---
 
@@ -83,40 +131,24 @@ Esto permite cargar automáticamente las clases ubicadas dentro de la carpeta `s
 
 ## Objetivo
 
-Implementar una función llamada:
+Implementar una función:
 
 ```php
 calcularPremioAcumulado(array $niveles): float
 ```
 
-Esta función recibe una estructura de premios organizada por niveles. Cada premio tiene un monto y también puede tener otros premios hijos.
+Esta función recibe una estructura de premios anidados, donde cada premio tiene un `monto` y puede tener una lista de `hijos`.
 
-Ejemplo de estructura:
+Ejemplo:
 
-```php
-$niveles = [
-    [
-        'monto' => 1000,
-        'hijos' => [
-            [
-                'monto' => 500,
-                'hijos' => []
-            ],
-            [
-                'monto' => 250,
-                'hijos' => [
-                    [
-                        'monto' => 100,
-                        'hijos' => []
-                    ]
-                ]
-            ]
-        ]
-    ]
-];
+```text
+Premio 1000
+├── Premio 500
+└── Premio 250
+    └── Premio 100
 ```
 
-En este caso, el resultado esperado es:
+Resultado esperado:
 
 ```text
 1000 + 500 + 250 + 100 = 1850
@@ -124,26 +156,23 @@ En este caso, el resultado esperado es:
 
 ## Archivo implementado
 
-La solución se encuentra en:
-
 ```text
 src/Premio.php
 ```
 
+## Decisión técnica
 
-## Explicación de la solución
+Se usó recursividad porque la estructura puede tener varios niveles anidados y el enunciado pedía resolverlo de esa forma.
 
-Para resolver esta parte, entendí que los premios pueden estar organizados como una estructura con varios niveles. Es decir, un premio puede tener un monto propio y también puede tener otros premios dentro.
+La función suma:
 
-La idea de la recursividad es que la función repite la misma tarea varias veces: toma un premio, suma su monto y luego revisa si ese premio tiene otros premios dentro. Si tiene hijos, vuelve a aplicar la misma lógica sobre ellos.
+1. El monto del premio actual.
+2. Los hijos del premio actual.
+3. El siguiente premio del mismo nivel.
 
-En mi solución, la función empieza revisando el primer premio de la lista. Suma su monto, luego revisa sus hijos y después pasa al siguiente premio del mismo nivel. Esto permite recorrer toda la estructura sin usar ciclos como `for`, `foreach` o `while`, porque la misma función se va llamando a sí misma para continuar el recorrido.
+## Caso base
 
-Elegí esta solución porque el enunciado pedía específicamente usar recursividad. Para este caso funciona bien, ya que la estructura de premios se parece a una lista donde cada elemento puede tener más elementos dentro.
-
-## Caso base de la recursión
-
-El caso base ocurre cuando el índice llega al final del arreglo de niveles:
+El caso base ocurre cuando el índice llega al final del arreglo:
 
 ```php
 if ($indice >= count($niveles)) {
@@ -151,32 +180,17 @@ if ($indice >= count($niveles)) {
 }
 ```
 
-Esto significa que ya no hay más premios por revisar en esa lista. En ese momento la función devuelve `0` y empieza a devolver los resultados acumulados.
+Esto significa que ya no hay más premios por recorrer y la función debe detenerse.
 
-El caso base es importante porque evita que la función se siga llamando indefinidamente.
+## Estructuras muy profundas
 
-## ¿Qué ocurre con una estructura muy profunda?
+Cada llamada recursiva queda guardada temporalmente en el stack o pila de llamadas de PHP.
 
-La solución usa recursividad porque el enunciado lo solicita. Cada llamada recursiva queda pendiente hasta que sus llamadas internas terminan.
+Si la estructura tuviera demasiados niveles, podrían generarse muchas llamadas recursivas y alcanzar un límite de memoria o stack. En un caso real con estructuras muy profundas, evaluaría una solución iterativa usando una pila manual.
 
-PHP guarda esas llamadas pendientes en una memoria llamada `stack` o pila de llamadas. El stack funciona como una pila donde PHP recuerda qué funciones están en ejecución y a cuál debe regresar cuando una función termina.
+## Probar la Parte 1
 
-Si la estructura de premios tuviera demasiados niveles anidados, se podrían generar muchas llamadas recursivas. En ese caso, PHP tendría que guardar demasiadas llamadas pendientes y eventualmente podría alcanzar un límite de memoria o de stack.
-
-En un caso real con estructuras muy profundas, evaluaría una solución iterativa usando una pila manual para tener mayor control del recorrido. Sin embargo, para esta prueba mantuve la recursividad porque era el objetivo principal del ejercicio.
-
-## Prueba manual de la función
-
-Para probar la función de forma sencilla, se creó una carpeta llamada `tests` en la raíz del proyecto.
-
-
-El archivo de prueba se encuentra en:
-
-```text
-tests/test_premio.php
-```
-
-Para ejecutar la prueba desde la raíz del proyecto:
+Ejecutar:
 
 ```bash
 php tests/test_premio.php
@@ -188,279 +202,140 @@ Resultado esperado:
 Resultado: 1850
 ```
 
-En este archivo se usa:
-
-```php
-require_once __DIR__ . '/../vendor/autoload.php';
-```
-
-Esto se debe a que el archivo `test_premio.php` está dentro de la carpeta `tests`. Por eso se usa `../` para subir un nivel hasta la raíz del proyecto y luego entrar a `vendor/autoload.php`.
-
-Esta prueba permite validar rápidamente que la función `calcularPremioAcumulado` está sumando correctamente todos los montos de la estructura de premios.
-
-
-## Supuestos hasta el momento
-
-* Cada premio puede tener un campo `monto`.
-* Cada premio puede tener un campo `hijos`.
-* Si un premio no tiene hijos, se considera como una lista vacía.
-* Si el monto no existe, se toma como `0`.
-* La función debe recorrer toda la estructura sin usar ciclos explícitos para la jerarquía.
-
-## Si tuviera más tiempo...
-
-* Agregaría pruebas automatizadas para validar diferentes estructuras de premios.
-* Validaría con más detalle que todos los montos sean numéricos.
-* Agregaría manejo de errores para estructuras mal formadas.
-* Compararía esta solución recursiva con una solución iterativa para casos con estructuras muy profundas.
-
-
 ---
 
 # Parte 2: Base de datos y consultas SQL
 
 ## Objetivo
 
-En esta parte se diseñó la base de datos para manejar usuarios y tiquetes de apuestas.
+Diseñar la base de datos y resolver las consultas solicitadas:
 
-El objetivo fue cubrir los siguientes puntos del enunciado:
-
-* Crear las tablas necesarias con claves foráneas e índices apropiados.
+* Crear tablas con claves foráneas e índices.
 * Consultar los 3 usuarios con mayor monto total apostado en tiquetes ganadores.
-* Consultar los usuarios que no tienen ningún tiquete registrado.
-* Explicar por qué es importante usar una transacción al registrar un tiquete que descuenta saldo.
+* Consultar usuarios sin tiquetes registrados.
+* Explicar el uso de transacciones al registrar tiquetes.
 
 ## Archivos relacionados
 
-Los archivos usados para esta parte son:
-
 ```text
-database/
-├── schema.sql
-├── seed.sql
-└── queries.sql
-```
-
-También se agregó una prueba manual en:
-
-```text
+database/schema.sql
+database/seed.sql
+database/queries.sql
 tests/test_queries.php
 ```
 
-## Diseño de la base de datos
+## Diseño
 
-Se creó una base de datos llamada:
-
-```text
-susuerte_prueba
-```
-
-Dentro de esta base de datos se definieron dos tablas principales:
+Se crearon dos tablas principales:
 
 ```text
 usuarios
 tiquetes
 ```
 
-La tabla `usuarios` almacena la información básica del usuario, incluyendo su saldo disponible.
-
-La tabla `tiquetes` almacena las apuestas realizadas por los usuarios. Cada tiquete pertenece a un usuario específico.
-
-## Tabla usuarios
-
-La tabla `usuarios` contiene campos como:
-
-```sql
-id
-nombre
-saldo
-creado_en
-```
-
-El campo `id` funciona como identificador único del usuario.
-
-El campo `saldo` se definió como:
-
-```sql
-DECIMAL(10, 2)
-```
-
-Se usó `DECIMAL` porque el saldo representa dinero. Para valores monetarios es mejor evitar tipos como `FLOAT`, ya que pueden generar pequeñas imprecisiones con decimales.
-
-## Tabla tiquetes
-
-La tabla `tiquetes` contiene campos como:
-
-```sql
-id
-usuario_id
-monto
-estado
-creado_en
-```
-
-El campo `usuario_id` permite relacionar cada tiquete con un usuario.
-
-El campo `monto` representa el valor apostado en el tiquete.
-
-El campo `estado` permite identificar el estado actual del tiquete. Para este proyecto se manejan los siguientes estados:
+La relación es de uno a muchos:
 
 ```text
-ganador
-perdedor
-pendiente
+Un usuario puede tener muchos tiquetes.
+Un tiquete pertenece a un solo usuario.
 ```
 
-El estado por defecto es:
-
-```text
-pendiente
-```
-
-Esto significa que cuando se crea un tiquete nuevo, todavía no se considera ganador ni perdedor.
-
-## Clave foránea
-
-La relación entre usuarios y tiquetes se definió con una clave foránea desde `tiquetes.usuario_id` hacia `usuarios.id`.
-
-Fragmento representativo:
+La tabla `tiquetes` tiene una clave foránea hacia `usuarios`:
 
 ```sql
 FOREIGN KEY (usuario_id)
 REFERENCES usuarios(id)
 ```
 
-Esto garantiza que no se pueda crear un tiquete para un usuario que no existe.
+Esto evita crear tiquetes asociados a usuarios inexistentes.
 
-Por ejemplo, si se intenta registrar un tiquete con `usuario_id = 999` y ese usuario no existe, la base de datos rechaza la operación.
+## Tipos de datos
 
-Esto ayuda a mantener la integridad de los datos.
-
-## Índices utilizados
-
-Se agregaron índices para mejorar consultas comunes sobre las tablas.
-
-En la tabla `usuarios` se agregó un índice sobre el nombre:
+Para valores monetarios se usó:
 
 ```sql
-INDEX idx_usuarios_nombre (nombre)
+DECIMAL(10, 2)
 ```
 
-En la tabla `tiquetes` se agregaron índices sobre:
+Se eligió `DECIMAL` porque es más adecuado que `FLOAT` para representar dinero y evitar imprecisiones con decimales.
 
-```sql
-usuario_id
-estado
-usuario_id, estado
+## Estado del tiquete
+
+Los tiquetes manejan el campo `estado` con los valores:
+
+```text
+pendiente
+ganador
+perdedor
 ```
 
-Estos índices ayudan especialmente en consultas donde se necesita buscar tiquetes por usuario o filtrar tiquetes por estado.
+Cuando se crea un tiquete desde la API, queda inicialmente como `pendiente`.
 
-El índice combinado:
+## Índices
 
-```sql
-INDEX idx_tiquetes_usuario_estado (usuario_id, estado)
+Se agregaron índices sobre campos usados en búsquedas, relaciones y filtros:
+
+```text
+usuarios.nombre
+tiquetes.usuario_id
+tiquetes.estado
+tiquetes.usuario_id, estado
 ```
 
-es útil porque una de las consultas principales necesita relacionar tiquetes con usuarios y filtrar únicamente los tiquetes ganadores.
-
-## Datos de prueba
-
-En el archivo `seed.sql` se agregaron usuarios y tiquetes iniciales para poder probar las consultas.
-
-Los datos permiten validar casos como:
-
-* Usuarios con varios tiquetes.
-* Usuarios con tiquetes ganadores.
-* Usuarios con tiquetes perdedores.
-* Usuarios sin ningún tiquete registrado.
-
-Esto facilita verificar que las consultas devuelven resultados correctos.
+El índice combinado `usuario_id, estado` ayuda en consultas donde se relacionan tiquetes con usuarios y se filtra por estado, por ejemplo tiquetes ganadores.
 
 ## Consulta: top 3 usuarios con mayor monto apostado en tiquetes ganadores
 
-El punto 2.2 solicita una consulta que retorne los 3 usuarios con mayor monto total apostado en tiquetes ganadores.
-
-La consulta se encuentra en:
+La consulta está en:
 
 ```text
 database/queries.sql
 ```
 
-La idea general de la consulta es:
+La lógica es:
 
 1. Unir usuarios con tiquetes.
-2. Filtrar solo los tiquetes con estado `ganador`.
-3. Sumar el monto apostado por cada usuario.
+2. Filtrar tiquetes con estado `ganador`.
+3. Sumar el monto apostado por usuario.
 4. Ordenar de mayor a menor.
-5. Tomar solo los primeros 3 resultados.
+5. Tomar los primeros 3.
 
-Fragmento principal:
+Fragmentos principales:
 
 ```sql
 SUM(t.monto) AS total_apostado_ganador
 ```
 
-Este fragmento suma el dinero apostado en los tiquetes ganadores.
-
-También se usa:
-
 ```sql
 WHERE t.estado = 'ganador'
 ```
 
-para tener en cuenta únicamente los tiquetes ganadores.
-
-Con los datos de prueba, el resultado esperado es:
+Resultado esperado con los datos de prueba:
 
 ```text
-Laura Martinez   9000.00
-Juan Perez       8000.00
-Maria Gomez      1000.00
+Laura Martinez - Total: 9000.00
+Juan Perez - Total: 8000.00
+Maria Gomez - Total: 1000.00
 ```
 
-## Consulta: usuarios sin ningún tiquete registrado
+## Consulta: usuarios sin tiquetes
 
-El punto 2.3 solicita listar los usuarios que no tienen ningún tiquete registrado.
-
-Para esto se usa un `LEFT JOIN`.
-
-La idea es traer todos los usuarios, incluso si no tienen tiquetes asociados. Luego se filtran los casos donde no se encontró ningún tiquete.
-
-Fragmento principal:
+Se usa `LEFT JOIN` para traer usuarios aunque no tengan tiquetes:
 
 ```sql
 LEFT JOIN tiquetes t ON t.usuario_id = u.id
 WHERE t.id IS NULL
 ```
 
-`LEFT JOIN` permite conservar los usuarios aunque no tengan registros relacionados en `tiquetes`.
-
-La condición:
-
-```sql
-WHERE t.id IS NULL
-```
-
-significa que no se encontró ningún tiquete para ese usuario.
-
-Con los datos de prueba, el resultado esperado es:
+Resultado esperado:
 
 ```text
 Carlos Ruiz
 ```
 
-## Prueba manual de las consultas
+## Probar consultas
 
-Para probar las consultas desde PHP, se creó el archivo:
-
-```text
-tests/test_queries.php
-```
-
-Este archivo ejecuta las dos consultas principales y muestra los resultados en consola.
-
-Para ejecutarlo desde la raíz del proyecto:
+Ejecutar:
 
 ```bash
 php tests/test_queries.php
@@ -478,145 +353,16 @@ Usuarios sin tiquetes registrados:
 3 - Carlos Ruiz - Saldo: 0.00
 ```
 
-## ¿Por qué usar una transacción al registrar un tiquete?
+## Uso de transacciones
 
-Al registrar un tiquete ocurren varias operaciones que deben mantenerse sincronizadas:
+Al crear un tiquete se deben realizar varias operaciones relacionadas:
 
 1. Validar que el usuario exista.
 2. Validar que tenga saldo suficiente.
-3. Descontar el saldo del usuario.
+3. Descontar saldo.
 4. Crear el tiquete.
 
-Estas operaciones deben tratarse como una sola unidad.
-
-Por ejemplo, si se descuenta el saldo pero falla la creación del tiquete, el usuario perdería dinero sin tener una apuesta registrada.
-
-También podría pasar lo contrario: que se cree un tiquete pero no se descuente el saldo correctamente.
-
-Para evitar esos casos se usa una transacción.
-
-Una transacción permite iniciar un bloque de operaciones y confirmar los cambios solo si todo sale bien. Si algo falla, se revierten los cambios.
-
-En PDO esto se maneja con métodos como:
-
-```php
-beginTransaction()
-commit()
-rollBack()
-```
-
-La idea es:
-
-```text
-Si todo sale bien: confirmar cambios.
-Si algo falla: deshacer cambios.
-```
-
-Por eso, en este proyecto es importante usar transacciones al crear tiquetes, ya que se está manejando saldo de usuarios y se debe evitar que la información quede inconsistente.
-
-## Decisiones tomadas
-
-* Se usó una base de datos relacional porque el problema tiene una relación clara entre usuarios y tiquetes.
-* Se usó una clave foránea para garantizar que cada tiquete pertenezca a un usuario existente.
-* Se usó `DECIMAL(10,2)` para representar dinero de forma más precisa.
-* Se usó el campo `estado` para identificar si un tiquete está `pendiente`, `ganador` o `perdedor`.
-* Se agregaron índices sobre campos usados en relaciones y filtros.
-* Se creó un archivo `seed.sql` para poder probar las consultas de forma rápida.
-* Se separaron las consultas del enunciado en `queries.sql` para que sean fáciles de revisar.
-
----
-
-# Parte 3: API de tiquetes
-
-## Objetivo
-
-En esta parte se implementó una API sencilla en PHP puro para crear tiquetes y consultar los tiquetes asociados a un usuario.
-
-El objetivo fue cubrir los siguientes puntos del enunciado:
-
-* Crear un endpoint `POST /api/tiquetes`.
-* Recibir un JSON con `usuario_id` y `monto`.
-* Validar que el usuario exista.
-* Validar que el usuario tenga saldo suficiente.
-* Descontar el monto del saldo del usuario dentro de una transacción.
-* Crear el tiquete.
-* Crear un endpoint para consultar los tiquetes de un usuario.
-* Retornar respuestas en formato JSON con códigos HTTP adecuados.
-
-## Rama de trabajo
-
-Para esta parte se trabajó en la rama:
-
-```text
-feature/api-tiquetes
-```
-
-Esto se hizo para mantener separado el desarrollo de la API y dejar evidencia del flujo de trabajo con ramas.
-
-Al finalizar la parte, esta rama se integra a `main` mediante un merge.
-
-## Archivos relacionados
-
-Los archivos principales de esta parte son:
-
-```text
-src/
-└── TiqueteService.php
-
-public/
-└── api/
-    ├── tiquetes.php
-    └── usuario_tiquetes.php
-```
-
-También se agregó una prueba manual en:
-
-```text
-tests/test_crear_tiquete.php
-```
-
-## Servicio de tiquetes
-
-La lógica principal se encuentra en:
-
-```text
-src/TiqueteService.php
-```
-
-Esta clase se encarga de crear tiquetes y consultar los tiquetes de un usuario.
-
-La función principal para registrar un tiquete es:
-
-```php
-crearTiquete(int $usuarioId, float $monto): array
-```
-
-Esta función realiza los siguientes pasos:
-
-1. Valida que el monto sea mayor que cero.
-2. Inicia una transacción.
-3. Busca el usuario en la base de datos.
-4. Valida que el usuario exista.
-5. Valida que el usuario tenga saldo suficiente.
-6. Calcula el nuevo saldo.
-7. Actualiza el saldo del usuario.
-8. Registra el tiquete con estado `pendiente`.
-9. Confirma la transacción.
-
-Si algo falla durante el proceso, se ejecuta un `rollBack()` para deshacer los cambios.
-
-## Uso de transacción al crear el tiquete
-
-El registro de un tiquete modifica dos partes importantes de la base de datos:
-
-```text
-usuarios
-tiquetes
-```
-
-Primero se descuenta saldo al usuario y luego se crea el tiquete.
-
-Estas dos acciones deben quedar sincronizadas. No sería correcto descontar saldo sin crear el tiquete, ni crear un tiquete sin descontar el saldo.
+Estas operaciones deben comportarse como una sola unidad. Si una falla, todas deben revertirse.
 
 Por eso se usa una transacción:
 
@@ -626,46 +372,46 @@ commit()
 rollBack()
 ```
 
-La transacción permite que ambas operaciones se comporten como una sola.
+Esto evita inconsistencias como descontar saldo sin crear tiquete o crear un tiquete sin descontar saldo.
 
-Si todo sale bien, se confirman los cambios con `commit()`.
+---
 
-Si ocurre un error, se revierten los cambios con `rollBack()`.
+# Parte 3: API de tiquetes
 
-## Uso de `FOR UPDATE`
+## Objetivo
 
-Al consultar el usuario durante la creación del tiquete, se usa una consulta con:
+Implementar endpoints para crear tiquetes y consultar tiquetes por usuario.
 
-```sql
-FOR UPDATE
-```
+## Rama de trabajo
 
-Esto bloquea temporalmente la fila del usuario mientras dura la transacción.
-
-La razón es evitar problemas si dos apuestas del mismo usuario llegan al mismo tiempo.
-
-Por ejemplo:
+Esta parte se trabajó en la rama:
 
 ```text
-Saldo del usuario: 10000
-
-Petición A: apuesta 8000
-Petición B: apuesta 8000
+feature/api-tiquetes
 ```
 
-Sin un bloqueo, ambas peticiones podrían leer el saldo inicial de `10000` y ambas creer que hay saldo suficiente.
+Luego se integró a `main` mediante merge, dejando evidencia del flujo de trabajo con Git.
 
-Con `FOR UPDATE`, una petición espera a que la otra termine antes de leer y modificar el saldo. Esto ayuda a evitar descuentos incorrectos.
-
-## Endpoint POST para crear tiquetes
-
-El endpoint para crear tiquetes se encuentra en:
+## Archivos relacionados
 
 ```text
+src/TiqueteService.php
 public/api/tiquetes.php
+public/api/usuario_tiquetes.php
+tests/test_crear_tiquete.php
 ```
 
-Este endpoint recibe una petición `POST` con un cuerpo JSON como:
+## Endpoint POST: crear tiquete
+
+Endpoint implementado:
+
+```text
+POST /api/tiquetes.php
+```
+
+El enunciado solicita `POST /api/tiquetes`. Como el proyecto está hecho en PHP puro, sin framework ni router, se implementó como archivo PHP dentro de `public/api`.
+
+Cuerpo esperado:
 
 ```json
 {
@@ -674,9 +420,17 @@ Este endpoint recibe una petición `POST` con un cuerpo JSON como:
 }
 ```
 
-La respuesta exitosa devuelve código HTTP `201`.
+Flujo:
 
-Ejemplo de respuesta:
+1. Validar datos recibidos.
+2. Validar que el usuario exista.
+3. Validar saldo suficiente.
+4. Iniciar transacción.
+5. Descontar saldo.
+6. Crear tiquete con estado `pendiente`.
+7. Confirmar transacción.
+
+Respuesta exitosa:
 
 ```json
 {
@@ -692,164 +446,31 @@ Ejemplo de respuesta:
 }
 ```
 
-## Códigos de respuesta del POST
-
-El endpoint `POST /api/tiquetes` maneja los siguientes códigos:
+## Códigos HTTP del POST
 
 ```text
 201 = tiquete creado correctamente
 400 = JSON inválido, campos faltantes o monto inválido
 404 = usuario no existe
 422 = saldo insuficiente
-500 = error inesperado del servidor
+500 = error inesperado
 ```
 
-## Endpoint GET para listar tiquetes de un usuario
+## Endpoint GET: tiquetes por usuario
 
-El enunciado solicita un endpoint tipo:
+El enunciado solicita:
 
 ```text
 GET /api/usuarios/{id}/tiquetes
 ```
 
-Como este proyecto está desarrollado en PHP puro, sin framework ni sistema de rutas, se implementó un endpoint equivalente usando un archivo PHP y un parámetro `id`:
+Como el proyecto no usa router, se implementó el endpoint equivalente:
 
 ```text
 GET /api/usuario_tiquetes.php?id=1
 ```
 
-Este endpoint retorna los tiquetes asociados al usuario indicado.
-
-Si el usuario no existe, responde con código HTTP `404`.
-
-Ejemplo de respuesta exitosa:
-
-```json
-{
-  "usuario_id": 1,
-  "tiquetes": [
-    {
-      "id": 18,
-      "usuario_id": 1,
-      "monto": "5000.00",
-      "estado": "pendiente",
-      "creado_en": "2026-06-03 18:30:00"
-    }
-  ]
-}
-```
-
-## Códigos de respuesta del GET
-
-El endpoint para listar tiquetes maneja los siguientes códigos:
-
-```text
-200 = consulta correcta
-400 = id de usuario inválido o no enviado
-404 = usuario no existe
-405 = método no permitido
-500 = error inesperado del servidor
-```
-
-## Cómo ejecutar el servidor local
-
-Como el proyecto no necesariamente está dentro de `C:\xampp\htdocs`, se puede usar el servidor embebido de PHP.
-
-Desde la raíz del proyecto:
-
-```bash
-php -S localhost:8000 -t public
-```
-
-La opción `-t public` indica que la carpeta pública del proyecto será `public`.
-
-Mientras este servidor esté activo, la API queda disponible en:
-
-```text
-http://localhost:8000
-```
-
-## Cómo probar el POST de creación de tiquete
-
-En otra terminal PowerShell, ejecutar:
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":1,"monto":5000}'
-```
-
-Resultado esperado:
-
-```text
-mensaje: Tiquete creado correctamente.
-estado HTTP: 201
-```
-
-También se puede verificar en la respuesta que el saldo fue descontado correctamente:
-
-```text
-saldo_anterior: 45000
-saldo_actual: 40000
-```
-
-Esto demuestra que el monto apostado fue descontado del saldo del usuario.
-
-## Probar usuario inexistente en POST
-
-```powershell
-try {
-  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":999,"monto":5000}'
-} catch {
-  $_.Exception.Response.StatusCode.value__
-}
-```
-
-Resultado esperado:
-
-```text
-404
-```
-
-## Probar saldo insuficiente en POST
-
-El usuario `Carlos Ruiz` tiene saldo `0`, por lo que una apuesta debería fallar.
-
-```powershell
-try {
-  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":3,"monto":5000}'
-} catch {
-  $_.Exception.Response.StatusCode.value__
-}
-```
-
-Resultado esperado:
-
-```text
-422
-```
-
-## Probar monto inválido en POST
-
-```powershell
-try {
-  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":1,"monto":0}'
-} catch {
-  $_.Exception.Response.StatusCode.value__
-}
-```
-
-Resultado esperado:
-
-```text
-400
-```
-
-## Cómo probar el GET de tiquetes por usuario
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/api/usuario_tiquetes.php?id=1" -Method GET | ConvertTo-Json -Depth 5
-```
-
-Resultado esperado:
+Respuesta exitosa:
 
 ```json
 {
@@ -866,7 +487,101 @@ Resultado esperado:
 }
 ```
 
-## Probar usuario inexistente en GET
+Si el usuario no existe, responde `404`.
+
+## Uso de `FOR UPDATE`
+
+Durante la creación del tiquete, el usuario se consulta con `FOR UPDATE`.
+
+Esto bloquea temporalmente la fila del usuario mientras dura la transacción y evita problemas si dos apuestas intentan descontar saldo al mismo tiempo.
+
+Ejemplo:
+
+```text
+Saldo: 10000
+Petición A: apuesta 8000
+Petición B: apuesta 8000
+```
+
+Sin bloqueo, ambas podrían leer el saldo inicial y aprobarse incorrectamente.
+Con `FOR UPDATE`, una espera a que la otra termine.
+
+## Probar POST exitoso
+
+Con el servidor activo:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+Ejecutar en otra terminal PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":1,"monto":5000}'
+```
+
+Resultado esperado:
+
+```text
+Tiquete creado correctamente.
+HTTP 201
+```
+
+## Probar usuario inexistente
+
+```powershell
+try {
+  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":999,"monto":5000}'
+} catch {
+  $_.Exception.Response.StatusCode.value__
+}
+```
+
+Resultado esperado:
+
+```text
+404
+```
+
+## Probar saldo insuficiente
+
+```powershell
+try {
+  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":3,"monto":5000}'
+} catch {
+  $_.Exception.Response.StatusCode.value__
+}
+```
+
+Resultado esperado:
+
+```text
+422
+```
+
+## Probar monto inválido
+
+```powershell
+try {
+  Invoke-RestMethod -Uri "http://localhost:8000/api/tiquetes.php" -Method POST -ContentType "application/json" -Body '{"usuario_id":1,"monto":0}'
+} catch {
+  $_.Exception.Response.StatusCode.value__
+}
+```
+
+Resultado esperado:
+
+```text
+400
+```
+
+## Probar GET de tiquetes
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/usuario_tiquetes.php?id=1" -Method GET | ConvertTo-Json -Depth 5
+```
+
+## Probar GET con usuario inexistente
 
 ```powershell
 try {
@@ -882,76 +597,36 @@ Resultado esperado:
 404
 ```
 
-## Prueba manual desde consola
-
-También se puede probar la creación de tiquetes directamente desde PHP usando:
-
-```bash
-php tests/test_crear_tiquete.php
-```
-
-Esta prueba ejecuta directamente el servicio `TiqueteService` sin pasar por HTTP.
-
-Sirve para validar rápidamente la lógica interna de creación del tiquete, descuento de saldo y transacción.
-
-## Decisiones tomadas
-
-* Se separó la lógica de negocio en `TiqueteService.php`.
-* Los archivos de `public/api` se encargan principalmente de recibir la petición, validar datos básicos y devolver JSON.
-* Se usaron excepciones personalizadas para diferenciar errores como usuario inexistente y saldo insuficiente.
-* Se usó una transacción para garantizar que el descuento de saldo y la creación del tiquete se completen juntos.
-* Se usó `FOR UPDATE` para evitar problemas cuando dos operaciones intentan modificar el saldo del mismo usuario al mismo tiempo.
-* Se usó el servidor embebido de PHP para facilitar la ejecución local sin mover el proyecto a `htdocs`.
-
-## Si tuviera más tiempo...
-
-* Implementaría un router para respetar exactamente la ruta `GET /api/usuarios/{id}/tiquetes`.
-* Agregaría pruebas automatizadas para los endpoints.
-* Agregaría validaciones más estrictas para los datos recibidos.
-* Movería la configuración de base de datos a variables de entorno.
-* Estandarizaría mejor el formato de errores JSON.
-
 ---
 
-# Parte 4: Interfaz web para crear tiquetes
+# Parte 4: Interfaz web
 
 ## Objetivo
 
-En esta parte se creó una página `index.html` para consumir la API desarrollada en la Parte 3.
-
-El objetivo fue cubrir los siguientes puntos del enunciado:
-
-* Crear un formulario para enviar un tiquete con `usuario_id` y `monto`.
-* Usar `fetch` para enviar los datos al endpoint de creación de tiquetes.
-* Mostrar mensajes diferentes según el código HTTP recibido.
-* Agregar el tiquete creado a una lista visible en el DOM sin recargar la página.
+Crear una página `index.html` que permita registrar tiquetes desde el navegador.
 
 ## Archivo relacionado
-
-La interfaz se encuentra en:
 
 ```text
 public/index.html
 ```
 
-## Funcionamiento general
+## Funcionamiento
 
-La página contiene un formulario con dos campos:
+La página contiene un formulario con:
 
 ```text
 usuario_id
 monto
 ```
 
-Cuando el usuario envía el formulario, JavaScript evita que la página se recargue usando:
+Al enviar el formulario, JavaScript evita la recarga de la página:
 
 ```javascript
 event.preventDefault()
 ```
 
-Luego se toman los valores ingresados y se envían al endpoint de la Parte 3 usando `fetch`.
-
-Fragmento representativo:
+Luego envía los datos al endpoint de creación de tiquetes usando `fetch`:
 
 ```javascript
 fetch('/api/tiquetes.php', {
@@ -966,175 +641,191 @@ fetch('/api/tiquetes.php', {
 })
 ```
 
-Este `fetch` envía una petición `POST` al endpoint encargado de crear tiquetes.
+## Mensajes al usuario
 
-## Mensajes según código HTTP
-
-La página interpreta el código HTTP recibido y muestra un mensaje diferente al usuario.
-
-Los casos manejados son:
+La interfaz muestra mensajes diferentes según el código HTTP recibido:
 
 ```text
-201 = tiquete creado correctamente
+201 = éxito
 400 = datos inválidos
 404 = usuario no encontrado
 422 = saldo insuficiente
-500 u otros = error inesperado
+500 = error inesperado
 ```
 
-Por ejemplo, si el usuario no existe, el backend responde con `404` y la interfaz muestra un mensaje indicando que el usuario no fue encontrado.
-
-Si el usuario existe pero no tiene saldo suficiente, el backend responde con `422` y la interfaz muestra un mensaje de saldo insuficiente.
-
-Esto permite que el usuario reciba una respuesta clara dependiendo del resultado de la operación.
-
-## Agregar tiquete al DOM sin recargar
-
-Cuando el tiquete se crea correctamente, la página no se recarga.
-
-En lugar de eso, se llama a una función que agrega el nuevo tiquete a una lista visible en pantalla.
-
-Fragmento representativo:
-
-```javascript
-agregarTiqueteALista(data.tiquete)
-```
-
-Dentro de esa función se crea un nuevo elemento HTML con:
-
-```javascript
-document.createElement('div')
-```
-
-Luego ese elemento se agrega a la lista con:
-
-```javascript
-listaTiquetes.prepend(item)
-```
-
-Se usa `prepend` para que el tiquete más reciente aparezca de primero.
-
-Esto cumple el requisito de actualizar el DOM sin recargar la página.
-
-## Corrección realizada durante las pruebas
-
-Durante las pruebas se identificó que el backend respondía correctamente con códigos como `404`, pero el mensaje no aparecía en pantalla.
-
-El problema estaba en que el contenedor del mensaje se ocultaba al limpiar el mensaje anterior, pero no se volvía a mostrar al escribir uno nuevo.
-
-Se corrigió agregando:
+Durante las pruebas se corrigió un problema visual: el backend respondía correctamente, pero el mensaje no aparecía porque el contenedor seguía oculto. Se solucionó mostrando nuevamente el contenedor al presentar un mensaje:
 
 ```javascript
 mensaje.style.display = 'block'
 ```
 
-dentro de la función encargada de mostrar los mensajes.
+## Actualización del DOM
 
-Con esto, los mensajes de éxito y error se muestran correctamente en la interfaz.
+Cuando el tiquete se crea correctamente, se agrega a una lista visible sin recargar la página.
 
-## Cómo ejecutar la interfaz
+La función crea un nuevo elemento HTML y lo agrega al inicio de la lista:
 
-Desde la raíz del proyecto, iniciar el servidor local de PHP:
+```javascript
+document.createElement('div')
+listaTiquetes.prepend(item)
+```
+
+## Probar la interfaz
+
+Iniciar el servidor:
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-Luego abrir en el navegador:
+Abrir:
 
 ```text
 http://localhost:8000
 ```
 
-Es importante abrir la página desde el servidor local y no haciendo doble clic sobre el archivo `index.html`, porque el formulario usa `fetch` hacia la API.
-
-## Cómo probar la creación exitosa
-
-Con la base de datos cargada usando `schema.sql` y `seed.sql`, usar en el formulario:
+Pruebas recomendadas:
 
 ```text
 Usuario ID: 1
 Monto: 5000
+Resultado: tiquete creado correctamente
 ```
-
-Resultado esperado:
-
-```text
-Tiquete creado correctamente.
-```
-
-Además, el tiquete creado debe aparecer en la lista visible de la página sin recargar.
-
-También se puede verificar que el saldo cambió. Por ejemplo, si el usuario tenía `45000` y apostó `5000`, el saldo actual queda en `40000`.
-
-## Cómo probar usuario inexistente
-
-Usar en el formulario:
 
 ```text
 Usuario ID: 999
 Monto: 5000
+Resultado: usuario no existe
 ```
-
-Resultado esperado:
-
-```text
-El usuario no existe.
-```
-
-En la consola del servidor puede aparecer una línea con código `404`, lo cual es correcto porque el backend está indicando que el usuario no fue encontrado.
-
-## Cómo probar saldo insuficiente
-
-Usar en el formulario:
 
 ```text
 Usuario ID: 3
 Monto: 5000
+Resultado: saldo insuficiente
 ```
-
-En los datos de prueba, el usuario con ID `3` tiene saldo `0`.
-
-Resultado esperado:
-
-```text
-El usuario no tiene saldo suficiente.
-```
-
-El backend responde con código HTTP `422`, porque la solicitud está bien formada, pero no puede procesarse por una regla de negocio.
-
-## Cómo probar monto inválido
-
-Usar en el formulario:
 
 ```text
 Usuario ID: 1
 Monto: 0
+Resultado: monto inválido
 ```
 
-Resultado esperado:
+---
+
+# Parte 6 - Mejora libre propuesta: idempotencia
+
+## Objetivo
+
+Como mejora libre propongo implementar idempotencia en la creación de tiquetes.
+
+La idea es evitar que una misma operación se procese más de una vez por accidente.
+
+## Problema
+
+Actualmente, si el usuario hace doble clic, si hay lentitud de red o si un cliente reintenta la petición, podrían crearse dos tiquetes y descontarse saldo dos veces.
+
+Ejemplo:
 
 ```text
-El monto debe ser mayor que cero.
+Saldo inicial: 50000
+Monto apostado: 5000
 ```
 
-El backend responde con código HTTP `400`, porque el monto enviado no es válido.
+Resultado correcto:
 
-## Decisiones tomadas
+```text
+Saldo final: 45000
+Tiquetes creados: 1
+```
 
-* Se usó HTML, CSS y JavaScript puro para mantener la solución sencilla.
-* Se usó `fetch` para consumir el endpoint de creación de tiquetes.
-* Se evitó recargar la página usando `event.preventDefault()`.
-* Se actualizaron los tiquetes visibles creando elementos directamente en el DOM.
-* Se mostraron mensajes diferenciados según el código HTTP recibido.
-* Se mantuvo la interfaz dentro de `public/index.html`, porque es un archivo accesible desde el servidor local.
+Resultado incorrecto por duplicado:
 
-## Si tuviera más tiempo...
+```text
+Saldo final: 40000
+Tiquetes creados: 2
+```
 
-* Agregaría una carga inicial de tiquetes existentes usando el endpoint de consulta por usuario.
-* Separaría el CSS y JavaScript en archivos independientes.
-* Mejoraría la experiencia visual de la interfaz.
-* Agregaría estados de carga mientras se envía la petición.
-* Bloquearía temporalmente el botón mientras se procesa la solicitud.
-* Agregaría validaciones visuales más completas antes de enviar el formulario.
+## Propuesta
 
+Agregar una clave única por intento de creación:
+
+```text
+idempotency_key
+```
+
+Ejemplo de solicitud:
+
+```json
+{
+  "usuario_id": 1,
+  "monto": 5000,
+  "idempotency_key": "usuario-1-20260603-abc123"
+}
+```
+
+La base de datos podría tener una columna:
+
+```sql
+idempotency_key VARCHAR(100) NULL
+```
+
+Y un índice único:
+
+```sql
+UNIQUE INDEX uq_tiquetes_idempotency_key (idempotency_key)
+```
+
+Si llega otra solicitud con la misma clave, el sistema devolvería el tiquete ya creado sin descontar saldo nuevamente.
+
+## Valor para el negocio
+
+Esta mejora protege operaciones relacionadas con dinero.
+
+Ayuda a:
+
+* Evitar tiquetes duplicados.
+* Evitar descuentos dobles de saldo.
+* Reducir reclamos de usuarios.
+* Mejorar la confianza en la plataforma.
+* Manejar mejor reintentos por errores de red.
+
+## Viabilidad
+
+Es una mejora viable porque no requiere cambiar toda la arquitectura. Los cambios principales serían:
+
+1. Agregar `idempotency_key` a `tiquetes`.
+2. Crear un índice único.
+3. Recibir la clave en el endpoint `POST`.
+4. Revisar si ya existe un tiquete con esa clave.
+5. Devolver el tiquete existente si la clave ya fue usada.
+6. Generar la clave desde el frontend.
+
+Elegí esta mejora porque está directamente relacionada con el flujo crítico del sistema: crear tiquetes y descontar saldo.
+
+---
+
+# Decisiones técnicas y supuestos
+
+* Se usó PHP puro para mantener una solución simple y fácil de revisar.
+* Se usó PDO para conexión a base de datos y consultas preparadas.
+* Se usó Composer solo para autoload PSR-4.
+* Se usó MySQL/MariaDB como base de datos relacional.
+* Se usó `DECIMAL(10,2)` para valores monetarios.
+* Se usó una transacción para crear tiquetes y descontar saldo.
+* Se usó `FOR UPDATE` para proteger el saldo ante operaciones concurrentes.
+* No se usó framework ni router; por eso algunos endpoints conservan extensión `.php`.
+* El endpoint `GET /api/usuario_tiquetes.php?id=1` se documenta como equivalente funcional de `GET /api/usuarios/{id}/tiquetes`.
+* La lista visible del frontend muestra los tiquetes creados durante la sesión actual, no todos los tiquetes existentes en base de datos.
+* Las credenciales de base de datos están en `src/Database.php` para simplificar la prueba. En producción se moverían a variables de entorno.
+
+# Si tuviera más tiempo...
+
+* Implementaría un router para respetar exactamente rutas como `/api/tiquetes` y `/api/usuarios/{id}/tiquetes`.
+* Agregaría pruebas automatizadas con PHPUnit.
+* Movería credenciales y configuración a variables de entorno.
+* Separaría CSS y JavaScript en archivos independientes.
+* Agregaría carga inicial de tiquetes existentes desde el frontend.
+* Implementaría la mejora de idempotencia.
+* Agregaría validaciones más estrictas a nivel de base de datos, como evitar montos menores o iguales a cero.
+* Estandarizaría el formato de errores JSON.
+* Revisaría los índices con `EXPLAIN` usando un volumen mayor de datos.
